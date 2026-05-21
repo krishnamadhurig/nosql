@@ -43,6 +43,32 @@ app.get("/users/:id", async (req, res) => {
     });
   }
 });
+app.delete("/cart/:userId/:productId", async (req, res) => {
+  try {
+    const { userId, productId } = req.params;
+
+    // Find user
+    const user = await User.findById(userId);
+
+    // Remove product from cart
+    user.cart = user.cart.filter(
+      (item) => item.toString() !== productId
+    );
+
+    // Save updated cart
+    await user.save();
+
+    res.json({
+      message: "Product deleted from cart",
+      cart: user.cart,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
 
 
 app.listen(5000, () => {

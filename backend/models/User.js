@@ -40,31 +40,16 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    // ADD THIS
+    cart: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
-
-
-// Function to insert user into MongoDB
-userSchema.statics.createUser = async function (userData) {
-  const user = await this.create(userData);
-  return user;
-};
-
-
-// Function to find user by ID
-userSchema.statics.findUserByID = async function (userId) {
-  const user = await this.findById(userId);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  return user;
-};
-
-const User = mongoose.model("User", userSchema);
-
-module.exports = User;
