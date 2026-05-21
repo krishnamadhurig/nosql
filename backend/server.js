@@ -5,6 +5,7 @@ dotenv.config();
 
 const connectDB = require("./config/db");
 const User = require("./models/User");
+const Order = require("./models/Order");
 
 const app = express();
 
@@ -69,7 +70,54 @@ app.delete("/cart/:userId/:productId", async (req, res) => {
     });
   }
 });
+app.post("/orders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
 
+    // Find user
+    const user = await User.findById(userId);
+
+    // Create new order
+    const order = await Order.create({
+      user: userId,
+      products: user.cart,
+    });
+
+    // Empty cart
+    user.cart = [];
+
+    await user.save();
+
+    res.status(201).json({
+      message: "Order placed successfully",
+      order,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+app.get("/orders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find all orders of user
+    const orders = await Order.find({
+      user: userId,
+    }).populate("products");
+
+    console.log(orders);
+
+    res.status(200).json(orders);
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
 
 app.listen(5000, () => {
   console.log("Server running on port 5000");
